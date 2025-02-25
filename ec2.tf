@@ -18,7 +18,7 @@ resource "aws_instance" "web_1" {
 
     # Clonar o repositório da aplicação
     cd /home/ec2-user
-    git clone https://github.com/DanielMelo1/e-commerce-app.git
+    git clone https://github.com/DanielMelo1/e-commerce-application.git
     cd ecommerce-app/backend
 
     # Instalar dependências e iniciar backend
