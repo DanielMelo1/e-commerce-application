@@ -1,4 +1,3 @@
-# Criar Instância EC2 - Servidor Web 1
 resource "aws_instance" "web_1" {
   ami                    = "ami-0320f10e7326a3e68"  # Nova AMI do Amazon Linux 2023
   instance_type          = "t3.small"
@@ -6,7 +5,6 @@ resource "aws_instance" "web_1" {
   vpc_security_group_ids = [aws_security_group.ec2_sg.id]
   key_name               = "key"
 
-  # Script de inicialização (User Data) para configurar a EC2 automaticamente
   user_data = <<-EOF
     #!/bin/bash
     sudo yum update -y
@@ -17,10 +15,25 @@ resource "aws_instance" "web_1" {
     git clone https://github.com/DanielMelo1/e-commerce-application.git
     cd e-commerce-application/backend
 
-    # Instalar dependências e iniciar backend
+    # Criar o .env dinâmico com o endpoint atualizado do RDS
+    echo "DB_USER=postgres
+    DB_HOST=${aws_db_instance.rds_postgres.endpoint}
+    DB_NAME=empresa_x_rds
+    DB_PASSWORD=*Usalg5627#
+    DB_PORT=5432
+    PORT=3001
+    DB_SSL=true" > .env
+
+    # Instalar dependências
     npm install
+
+    # Executar migrações do banco de dados
+    npx knex migrate:latest
+
+    # Iniciar backend
     npm run dev &
-    
+
+    # Configurar e iniciar frontend
     cd ../frontend
     npm install
     npm run build
@@ -33,7 +46,6 @@ resource "aws_instance" "web_1" {
   }
 }
 
-# Criar Instância EC2 - Servidor Web 2
 resource "aws_instance" "web_2" {
   ami                    = "ami-0320f10e7326a3e68"  # Nova AMI do Amazon Linux 2023
   instance_type          = "t3.small"
@@ -50,9 +62,18 @@ resource "aws_instance" "web_2" {
     git clone https://github.com/DanielMelo1/e-commerce-application.git
     cd e-commerce-application/backend
 
+    echo "DB_USER=postgres
+    DB_HOST=${aws_db_instance.rds_postgres.endpoint}
+    DB_NAME=empresa_x_rds
+    DB_PASSWORD=*Usalg5627#
+    DB_PORT=5432
+    PORT=3001
+    DB_SSL=true" > .env
+
     npm install
+    npx knex migrate:latest
     npm run dev &
-    
+
     cd ../frontend
     npm install
     npm run build
@@ -63,66 +84,4 @@ resource "aws_instance" "web_2" {
   tags = {
     Name = "empresa-x-web-2"
   }
-}
-
-# Security Group para o ELB
-resource "aws_security_group" "elb_sg" {
-  name        = "empresa-x-elb-sg"
-  description = "Allow traffic to Load Balancer"
-  vpc_id      = aws_vpc.main.id
-
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-# Criar Volume EBS para Web 1
-resource "aws_ebs_volume" "web1_ebs" {
-  availability_zone = "us-east-1a"
-  size             = 10
-
-  tags = {
-    Name = "empresa-x-web-1-ebs"
-  }
-}
-
-# Anexar o Volume EBS à Instância Web 1
-resource "aws_volume_attachment" "web1_attach" {
-  device_name = "/dev/xvdf"
-  volume_id   = aws_ebs_volume.web1_ebs.id
-  instance_id = aws_instance.web_1.id
-}
-
-# Criar Volume EBS para Web 2
-resource "aws_ebs_volume" "web2_ebs" {
-  availability_zone = "us-east-1b"
-  size             = 10
-
-  tags = {
-    Name = "empresa-x-web-2-ebs"
-  }
-}
-
-# Anexar o Volume EBS à Instância Web 2
-resource "aws_volume_attachment" "web2_attach" {
-  device_name = "/dev/xvdg"
-  volume_id   = aws_ebs_volume.web2_ebs.id
-  instance_id = aws_instance.web_2.id
 }
