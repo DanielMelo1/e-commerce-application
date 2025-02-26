@@ -1,10 +1,6 @@
-data "aws_ssm_parameter" "amzn2_latest" {
-  name = "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2"
-}
-
 # Criar Instância EC2 - Servidor Web 1
 resource "aws_instance" "web_1" {
-  ami                    = data.aws_ssm_parameter.amzn2_latest.value
+  ami                    = "ami-0320f10e7326a3e68"  # Nova AMI do Amazon Linux 2023
   instance_type          = "t3.small"
   subnet_id              = aws_subnet.public_1.id
   vpc_security_group_ids = [aws_security_group.ec2_sg.id]
@@ -19,7 +15,7 @@ resource "aws_instance" "web_1" {
     # Clonar o repositório da aplicação
     cd /home/ec2-user
     git clone https://github.com/DanielMelo1/e-commerce-application.git
-    cd ecommerce-app/backend
+    cd e-commerce-application/backend
 
     # Instalar dependências e iniciar backend
     npm install
@@ -39,7 +35,7 @@ resource "aws_instance" "web_1" {
 
 # Criar Instância EC2 - Servidor Web 2
 resource "aws_instance" "web_2" {
-  ami                    = data.aws_ssm_parameter.amzn2_latest.value
+  ami                    = "ami-0320f10e7326a3e68"  # Nova AMI do Amazon Linux 2023
   instance_type          = "t3.small"
   subnet_id              = aws_subnet.public_2.id
   vpc_security_group_ids = [aws_security_group.ec2_sg.id]
@@ -51,8 +47,8 @@ resource "aws_instance" "web_2" {
     sudo yum install -y git nodejs npm postgresql15
 
     cd /home/ec2-user
-    git clone https://github.com/DanielMelo1/e-commerce-app.git
-    cd ecommerce-app/backend
+    git clone https://github.com/DanielMelo1/e-commerce-application.git
+    cd e-commerce-application/backend
 
     npm install
     npm run dev &
