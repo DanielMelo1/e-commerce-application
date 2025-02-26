@@ -10,8 +10,20 @@ const pool = new Pool({
   ssl: process.env.DB_SSL === "true" ? { rejectUnauthorized: false } : false
 });
 
-pool.connect()
-  .then(() => console.log('✅ Conectado ao banco de dados PostgreSQL!'))
-  .catch(err => console.error('❌ Erro ao conectar ao banco:', err));
+// Testar conexão inicial ao banco de dados
+const testConnection = async () => {
+  try {
+    const client = await pool.connect();
+    console.log('✅ Conectado ao banco de dados PostgreSQL com sucesso!');
+    client.release();
+  } catch (err) {
+    console.error('❌ Erro ao conectar ao banco de dados:', err.message);
+    process.exit(1); // Sai do processo caso não consiga conectar
+  }
+};
+
+// Executar teste de conexão
+testConnection();
 
 module.exports = pool;
+

@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "nodemon index.js",
     "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "migrate": "npx knex migrate:latest"
   },
   "keywords": [],
   "author": "",
@@ -15,7 +16,10 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "pg": "^8.13.3"
+    "knex": "^3.1.0",
+    "pg": "^8.13.3",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.37.5"
   },
   "devDependencies": {
     "nodemon": "^3.0.3"
